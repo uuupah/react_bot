@@ -10,13 +10,14 @@ client = discord.Client()
 token = os.environ['TOKEN']
 id = os.environ['CLIENTID']
 overlay = Image.open('assets/a.png')
-
+overlayleft = Image.open('assets/left.png')
+overlayright = Image.open('assets/right.png')
 
 @client.event
 async def on_ready():
     print(f'logged in as {client.user}')
 
-
+#TODO actual error handling
 @client.event
 async def on_message(msg):
     print(msg.content)
@@ -31,24 +32,43 @@ async def on_message(msg):
         async for message in msg.channel.history(limit=10):
             if message.attachments:
                 if message.attachments[0].content_type.startswith("image/"):
-                    # targetimage = message.attachments[0].url
-                    # await msg.channel.send(message.attachments[0].url)
-                    targetImage = Image.open(requests.get(message.attachments[0].url, stream=True).raw)
+                    targetimage = Image.open(requests.get(message.attachments[0].url, stream=True).raw)
 
-                    print(targetImage.size)
+                    print(targetimage.size)
 
-                    # tempoverlay = overlay.thumbnail(targetImage.size,Image.ANTIALIAS)
+                    #FIXME the way i'm detecting whether the image is the right size doesnt actually rally make sense and should be based on aspect ratios instead of raw width
+                    #TODO refactor so the variable names are less huge
 
-                    # scale overlay to width of target image while respecting aspect ratio
-                    basewidth = targetImage.size[0]
-                    wpercent = (basewidth/float(overlay.size[0]))
-                    hsize = int((float(overlay.size[1])*float(wpercent)))
-                    tempoverlay = overlay.resize((basewidth,hsize), Image.ANTIALIAS)
+                    # if target image is wider than original overlay, split the image and paste the halves separately
+                    if targetimage.size[0] > overlay.size[0]:
+                      #TODO clean this up its horrific
+                      #scale left image to height of target image, preserving aspect ratio
+                      baseheight = targetimage.size[1]
+                      lefthpercent = (baseheight/float(overlayleft.size[1]))
+                      leftwsize = int((float(overlayleft.size[0])*float(lefthpercent)))
+                      templeftoverlay = overlayleft.resize((leftwsize, baseheight), Image.ANTIALIAS)
 
-                    targetImage.paste(tempoverlay, (0,targetImage.size[1]-tempoverlay.size[1]), tempoverlay)
+                      targetimage.paste(templeftoverlay, (0,targetimage.size[1]-templeftoverlay.size[1]), templeftoverlay)
+
+                      #scale right image to height of target image, preserving aspect ratio
+                      baseheight = targetimage.size[1]
+                      righthpercent = (baseheight/float(overlayright.size[1]))
+                      rightwsize = int((float(overlayright.size[0])*float(righthpercent)))
+                      temprightoverlay = overlayright.resize((rightwsize, baseheight), Image.ANTIALIAS)
+
+                      targetimage.paste(temprightoverlay, (targetimage.size[0]-temprightoverlay.size[0],targetimage.size[1]-temprightoverlay.size[1]), temprightoverlay)
+                    # otherwise, just do it the easy way
+                    else:  
+                        # scale overlay to width of target image and paste it at the bottom     
+                        basewidth = targetimage.size[0]
+                        wpercent = (basewidth/float(overlay.size[0]))
+                        hsize = int((float(overlay.size[1])*float(wpercent)))
+                        tempoverlay = overlay.resize((basewidth,hsize), Image.ANTIALIAS)
+
+                        targetimage.paste(tempoverlay, (0,targetimage.size[1]-tempoverlay.size[1]),     tempoverlay)
 
                     with io.BytesIO() as image_binary:
-                      targetImage.save(image_binary, 'PNG')
+                      targetimage.save(image_binary, 'PNG')
                       image_binary.seek(0)
                       await message.channel.send(file=discord.File(fp=image_binary, filename='image.png'))
 
