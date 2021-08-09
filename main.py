@@ -26,13 +26,18 @@ async def on_message(msg):
         await msg.channel.send('pong')
 
     if msg.content == f'<@!{id}>':
-        await msg.channel.send('hello, world')
-        #TODO check last x messages (ten might be a good threshold)
-        #TODO if no images in last ten, return
-        #TODO find most recent image
-        #TODO transform image with overlay
-        #TODO post image 
-        return
+        targetimage = ""
 
+        async for message in msg.channel.history(limit=10):
+            if message.attachments:
+                if message.attachments[0].content_type.startswith("image/"):
+                    targetimage = message.attachments[0].url
+                    await msg.channel.send(targetimage)
+                    break
+
+        await msg.channel.send('hello, world')
+        #TODO transform image with overlay
+        #TODO post image
+        return
 
 client.run(token)
