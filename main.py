@@ -34,13 +34,13 @@ async def on_message(msg):
                 if message.attachments[0].content_type.startswith("image/"):
                     targetimage = Image.open(requests.get(message.attachments[0].url, stream=True).raw)
 
-                    print(targetimage.size)
+                    targetar = targetimage.size[0]/targetimage.size[1]
+                    overlayar = overlay.size[0]/overlay.size[1]
 
-                    #FIXME the way i'm detecting whether the image is the right size doesnt actually rally make sense and should be based on aspect ratios instead of raw width
                     #TODO refactor so the variable names are less huge
 
                     # if target image is wider than original overlay, split the image and paste the halves separately
-                    if targetimage.size[0] > overlay.size[0]:
+                    if targetar > overlayar:
                       #TODO clean this up its horrific
                       #scale left image to height of target image, preserving aspect ratio
                       baseheight = targetimage.size[1]
@@ -74,7 +74,7 @@ async def on_message(msg):
 
                     break
 
-        await msg.channel.send('awooga')
+        # await msg.channel.send('awooga')
         return
 
 
