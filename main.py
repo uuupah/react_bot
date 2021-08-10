@@ -2,100 +2,121 @@ import os
 import discord
 import requests
 import io
-from PIL import Image
-
-# from PIL import image
+from PIL import Image as image
+import ast
 
 client = discord.Client()
-sunday = os.environ['SUNDAYID']
-uuupah = os.environ['UUUPAHID']
-token = os.environ['TOKEN']
-moop250 = os.environ['250MOOP']
-id = os.environ['CLIENTID']
 
-overlay = Image.open('assets/a.png')
-overlayleft = Image.open('assets/left.png')
-overlayright = Image.open('assets/right.png')
+# import constant values, using environ.json if local or os.environ in repl.it
+try:
+    sunday = os.environ['SUNDAYID']
+    uuupah = os.environ['UUUPAHID']
+    token = os.environ['TOKEN']
+    moop250 = os.environ['250MOOP']
+    id = os.environ['CLIENTID']
+except:
+    try:
+        file = open("environ.json", "r")
+        contents = file.read()
+        environ = ast.literal_eval(contents)
+        file.close()
 
+        sunday = environ['sunday']
+        uuupah = environ['uuupah']
+        token = environ['token']
+        moop250 = environ['moop250']
+        id = environ['id']
+    except:
+        print('shits fucked')
+
+# load in images
+overlay = image.open('assets/a.png')
+overlay_l = image.open('assets/left.png')
+overlay_r = image.open('assets/right.png')
+
+# startup message
 @client.event
 async def on_ready():
     print(f'logged in as {client.user}')
 
 #TODO actual error handling
+# watching for message events
 @client.event
 async def on_message(msg):
-    print(msg.author)
-    print(f' > {msg.content}')
-    # print(145500797235363840 == msg.author.id)
-    # ignore messages by the bot
+    # ignore messages sent by bot
     if msg.author == client.user:
         return
 
+    # print messages for terminal viewing
+    print(msg.author)
+    print(f' > {msg.content}')
+
+    # ping
     if msg.content == '$ping':
         await msg.channel.send('pong')
         return
 
-    # if msg.author.id == int(sunday):
-    #   await msg.channel.send('awooga')
-    #   return
-
-    # if msg.author.id == int(uuupah):
-      # await msg.add_reaction(f'<:moop:{moop250}>')
-      # await msg.channel.send(f'<:moop:{moop250}>')
-      # return
-
+    # watch for messages that ping the bot
     if msg.content == f'<@!{id}>':
         async for message in msg.channel.history(limit=10):
             if message.attachments:
                 if message.attachments[0].content_type.startswith("image/"):
-                    # if msg.author.id == int(sunday):
-                    #     await message.add_reaction('\N{AUBERGINE}')
-                    #     return
 
-                    targetimage = Image.open(requests.get(message.attachments[0].url, stream=True).raw)
+                    backgr = image.open(requests.get(message.attachments[0].url, stream=True).raw)
+                    backgr_w = backgr.size[0] # background width
+                    backgr_h = backgr.size[1] # background height
 
-                    targetar = targetimage.size[0]/targetimage.size[1]
-                    overlayar = overlay.size[0]/overlay.size[1]
+                    # get aspect ratios
+                    backgr_ar = backgr.size[0]/backgr.size[1]
+                    overlay_ar = overlay.size[0]/overlay.size[1]
 
-                    #TODO refactor so the variable names are less huge
+                    # if backgr image is wider than original overlay, split the image and paste the halves separately
+                    if backgr_ar > overlay_ar:
+                      #scale images to height of backgr image, preserving aspect ratio
+                      l_h_ratio = (backgr_h/float(overlay_l.size[1]))                         # get ratio of current height to background height
+                      l_w_target = int((float(overlay_l.size[0])*float(l_h_ratio)))           # get target width using current width and ratio
+                      t_overlay_l = overlay_l.resize((l_w_target, backgr_h), image.ANTIALIAS) # resize
 
-                    # if target image is wider than original overlay, split the image and paste the halves separately
-                    if targetar > overlayar:
-                      #TODO clean this up its horrific
-                      #scale left image to height of target image, preserving aspect ratio
-                      baseheight = targetimage.size[1]
-                      lefthpercent = (baseheight/float(overlayleft.size[1]))
-                      leftwsize = int((float(overlayleft.size[0])*float(lefthpercent)))
-                      templeftoverlay = overlayleft.resize((leftwsize, baseheight), Image.ANTIALIAS)
+                      backgr.paste(t_overlay_l, (0,backgr.size[1]-t_overlay_l.size[1]), t_overlay_l)
 
-                      targetimage.paste(templeftoverlay, (0,targetimage.size[1]-templeftoverlay.size[1]), templeftoverlay)
+                      r_h_ratio = (backgr_h/float(overlay_r.size[1]))
+                      r_w_target = int((float(overlay_r.size[0])*float(r_h_ratio)))
+                      t_overaly_r = overlay_r.resize((r_w_target, backgr_h), image.ANTIALIAS)
 
-                      #scale right image to height of target image, preserving aspect ratio
-                      baseheight = targetimage.size[1]
-                      righthpercent = (baseheight/float(overlayright.size[1]))
-                      rightwsize = int((float(overlayright.size[0])*float(righthpercent)))
-                      temprightoverlay = overlayright.resize((rightwsize, baseheight), Image.ANTIALIAS)
-
-                      targetimage.paste(temprightoverlay, (targetimage.size[0]-temprightoverlay.size[0],targetimage.size[1]-temprightoverlay.size[1]), temprightoverlay)
+                      backgr.paste(t_overaly_r, (backgr.size[0]-t_overaly_r.size[0],backgr.size[1]-t_overaly_r.size[1]), t_overaly_r)
                     # otherwise, just do it the easy way
                     else:  
-                        # scale overlay to width of target image and paste it at the bottom     
-                        basewidth = targetimage.size[0]
-                        wpercent = (basewidth/float(overlay.size[0]))
-                        hsize = int((float(overlay.size[1])*float(wpercent)))
-                        tempoverlay = overlay.resize((basewidth,hsize), Image.ANTIALIAS)
+                        # scale image to width of background image and paste at bottom
+                        w_ratio = (backgr_w/float(overlay.size[0]))
+                        h_target = int((float(overlay.size[1])*float(w_ratio)))
+                        t_overlay = overlay.resize((backgr_w,h_target), image.ANTIALIAS)
 
-                        targetimage.paste(tempoverlay, (0,targetimage.size[1]-tempoverlay.size[1]),     tempoverlay)
+                        backgr.paste(t_overlay, (0,backgr.size[1]-t_overlay.size[1]),t_overlay)
 
+                    # post image
                     with io.BytesIO() as image_binary:
-                      targetimage.save(image_binary, 'PNG', optimize=True, quality=90)
+                      backgr.save(image_binary, 'PNG', optimize=True, quality=90)
                       image_binary.seek(0)
                       await message.channel.send(file=discord.File(fp=image_binary, filename='image.png'))
 
                     break
-
-        # await msg.channel.send('awooga')
         return
 
 
 client.run(token)
+
+
+# naughty code jail
+
+# if msg.author.id == int(sunday):
+#   await msg.channel.send('awooga')
+#   return
+
+# if msg.author.id == int(uuupah):
+# await msg.add_reaction(f'<:moop:{moop250}>')
+# await msg.channel.send(f'<:moop:{moop250}>')
+# return
+
+# if msg.author.id == int(sunday):
+#     await message.add_reaction('\N{AUBERGINE}')
+#     return
