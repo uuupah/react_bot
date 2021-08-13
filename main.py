@@ -13,6 +13,8 @@ def now():
 
 client = discord.Client()
 
+shitmoop = 811211114699292672
+
 # import constant values, using environ.json if local or os.environ in repl.it
 try:
     sunday = os.environ['SUNDAYID']
@@ -43,7 +45,7 @@ overlay_r = image.open('assets/right.png')
 # startup message
 @client.event
 async def on_ready():
-    print(f'logged in as {client.user} {now()}')
+    print(f'$$ logged in as {client.user} {now()}')
 
 #TODO actual error handling
 # watching for message events
@@ -62,9 +64,15 @@ async def on_message(msg):
         await msg.channel.send('pong')
         return
 
+    if 'moop' in msg.content.lower():
+      await msg.add_reaction(f'<:moop:{shitmoop}>')
+      return
+
     # watch for messages that ping the bot
-    if msg.content == f'<@!{id}>':
-        async for message in msg.channel.history(limit=10):
+    if f'<@!{id}>' in msg.content or f'<@{id}>' in msg.content:
+        print(f'$$ Bot pinged, searching for images {now()}')
+        imageposted = False
+        async for message in msg.channel.history(limit=20):
             if message.attachments:
                 if message.attachments[0].content_type.startswith("image/"):
                     print(f'$$ Image found at {message.attachments[0].url} {now()}')
@@ -111,7 +119,12 @@ async def on_message(msg):
                       await message.channel.send(file=discord.File(fp=image_binary, filename='image.png'))
 
                     print(f'$$ Reaction image posted {now()}')
+                    imageposted = True
                     break
+
+        if not imageposted:
+          print(f'$$ no images found {now()}')
+          await msg.channel.send(f'<:moop:{shitmoop}>')
         return
 
 
