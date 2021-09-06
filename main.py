@@ -48,7 +48,7 @@ async def on_ready():
     print(f'$$ logged in as {client.user} {now()}')
     await client.wait_until_ready()
     dad = await client.fetch_user(int(uuupah))
-    await dad.send("hello father, i have returned from the void of nonexistence")
+    await dad.send(f'hello father, i have returned from the void of nonexistence {now()}')
 
 #TODO actual error handling
 # watching for message events
