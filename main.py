@@ -46,8 +46,9 @@ overlay_r = image.open('assets/right.png')
 @client.event
 async def on_ready():
     print(f'$$ logged in as {client.user} {now()}')
-    dad = await.get_user_info(uuupah)
-    await client.send_message(dad, "hello father, i have returned from the void of nonexistence")
+    await client.wait_until_ready()
+    dad = await client.fetch_user(int(uuupah))
+    await dad.send("hello father, i have returned from the void of nonexistence")
 
 #TODO actual error handling
 # watching for message events
