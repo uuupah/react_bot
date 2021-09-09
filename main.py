@@ -6,6 +6,7 @@ from PIL import Image as image
 import ast
 from datetime import datetime
 import pytz
+import re
 
 def now():
   tz = pytz.timezone('AUSTRALIA/Adelaide')
@@ -67,7 +68,7 @@ async def on_message(msg):
         await msg.channel.send('pong')
         return
 
-    if 'moop' in msg.content.lower():
+    if re.search(r'moo+p', msg.content, flags=re.IGNORECASE):
       await msg.add_reaction(f'<:moop:{shitmoop}>')
       return
 
