@@ -1,12 +1,13 @@
 import os
-import discord
-import requests
+import sys
 import io
-from PIL import Image as image
-import ast
-from datetime import datetime
-import pytz
 import re
+import requests
+import ast
+import discord
+import pytz
+from datetime import datetime
+from PIL import Image as image
 
 def now():
   tz = pytz.timezone('AUSTRALIA/Adelaide')
@@ -66,6 +67,10 @@ async def on_message(msg):
     # ping
     if msg.content == '$ping':
         await msg.channel.send('pong')
+        return
+
+    if msg.author.id == int(sunday) and msg.content.lower() == 'me':
+        await msg.add_reaction(f'<:moop:{shitmoop}>')
         return
 
     if re.search(r'moo+p', msg.content, flags=re.IGNORECASE):
@@ -136,9 +141,6 @@ client.run(token)
 
 # naughty code jail
 
-# if msg.author.id == int(sunday):
-#   await msg.channel.send('awooga')
-#   return
 
 # if msg.author.id == int(uuupah):
 # await msg.add_reaction(f'<:moop:{moop250}>')
