@@ -60,6 +60,13 @@ async def on_message(msg):
     if msg.author == client.user:
         return
 
+    # restart on certain command
+    if msg.author.id == int(uuupah) and msg.content.lower() == 'moop, please restart':
+        await msg.channel.send('okay, restarting')
+        os.system("sh $HOME/moop.sh &")
+        sys.exit()
+        return
+
     # print messages for terminal viewing
     print(msg.author)
     print(f' > {msg.content}')
