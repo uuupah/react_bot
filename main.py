@@ -71,6 +71,13 @@ async def on_message(msg):
     print(msg.author)
     print(f' > {msg.content}')
 
+    #HORSE PLINKO
+    if msg.content == 'horse plinko':
+        if msg.channel.type == 'private':
+            await msg.delete()
+        await msg.channel.send(files=[discord.File('./assets/horse1.gif'),discord.File('./assets/horse2.gif')])
+        return
+
     # ping
     if msg.content == '$ping':
         await msg.channel.send('pong')
