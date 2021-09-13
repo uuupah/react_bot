@@ -9,8 +9,8 @@ import pytz
 from datetime import datetime
 from PIL import Image as image
 
-import youtube_dl
-import asyncio
+# import youtube_dl
+# import asyncio
 
 def now():
   tz = pytz.timezone('AUSTRALIA/Adelaide')
