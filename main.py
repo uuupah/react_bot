@@ -95,15 +95,17 @@ async def on_message(msg):
       return
 
     # watch for messages that ping the bot
+    #TODO keep animation on gifs and apngs
     if f'<@!{id}>' in msg.content or f'<@{id}>' in msg.content:
         print(f'$$ Bot pinged, searching for images {now()}')
         imageposted = False
         async for message in msg.channel.history(limit=20):
             if message.attachments:
-                if message.attachments[0].content_type.startswith("image/"):
-                    print(f'$$ Image found at {message.attachments[0].url} {now()}')
+                #TODO iterate through files if the end isnt an image
+                if message.attachments[len(message.attachments)-1].content_type.startswith("image/"):
+                    print(f'$$ Image found at {message.attachments[len(message.attachments)-1].url} {now()}')
 
-                    backgr = image.open(requests.get(message.attachments[0].url, stream=True).raw)
+                    backgr = image.open(requests.get(message.attachments[len(message.attachments)-1].url, stream=True).raw)
                     backgr_w = backgr.size[0] # background width
                     backgr_h = backgr.size[1] # background height
 
