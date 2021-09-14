@@ -6,31 +6,38 @@ import requests
 import ast
 import discord
 from discord.ext.commands import Bot
+from discord.abc import PrivateChannel
 # from discord import Intents
 import pytz
 from datetime import datetime
 from PIL import Image as image
 
-
 # import youtube_dl
 # import asyncio
 
 #TODO change moop from a client to a proper bot
+#TODO implement cogs
+#TODO build custom print method that returns to both the terminal and to a specific 'terminal' channel on discord
+#TODO add proper logging
+#TODO see if the moop ping can be done programmatically instead of saving an id
 #TODO chop up moop into multiple files for better organisation
 #TODO set up obsidian and PARA notes for this project
-#TODO add proper logging
 #TODO link in youtube functionality
 #TODO update requirements file to support above youtube functionality
+#TODO keep working on adding new overlays for moops
+#TODO make some hilarious rich presence meme
+
 
 def now():
-  tz = pytz.timezone('AUSTRALIA/Adelaide')
-  return datetime.now(tz).strftime("-%H.%M.%S %d.%m.%y")
+    tz = pytz.timezone('AUSTRALIA/Adelaide')
+    return datetime.now(tz).strftime("-%H.%M.%S %d.%m.%y")
+
 
 # intents = Intents.all()
 # client = discord.Client()
 bot = Bot(
-  # intents=intents, 
-  command_prefix='!')
+    # intents=intents,
+    command_prefix='!')
 
 shitmoop = 811211114699292672
 
@@ -54,12 +61,15 @@ except:
         moop250 = environ['moop250']
         id = environ['id']
     except:
-        print(f'$$ A problem has occurred during constant variable loading {now()}')
+        print(
+            f'$$ A problem has occurred during constant variable loading {now()}'
+        )
 
 # load in images
 overlay = image.open('assets/a.png')
 overlay_l = image.open('assets/left.png')
 overlay_r = image.open('assets/right.png')
+
 
 # startup message
 @bot.event
@@ -67,7 +77,48 @@ async def on_ready():
     print(f'$$ logged in as {bot.user} {now()}')
     await bot.wait_until_ready()
     dad = await bot.fetch_user(int(uuupah))
-    await dad.send(f'hello father, i have returned from the void of nonexistence {now()}')
+    await dad.send(
+        f'hello father, i have returned from the void of nonexistence {now()}')
+
+
+@bot.command(
+    name='ping', 
+    help=f'returns a "pong" when ${bot.user} is running')
+async def ping(ctxt):
+    await ctxt.send('pong')
+    return
+
+
+@bot.command(
+    name='restart',
+    help=f'runs the start script on moopbox and kills the current instance')
+async def restart(ctxt):
+    #i'm going to miss using the full 'moop, please restart' so try keeping that
+    await ctxt.send('okay, restarting')
+    os.system("sh $HOME/moop.sh &")
+    sys.exit()
+    return
+
+
+@bot.command(
+    name='horseplinko',
+    help=f'posts horse plinko gifs')
+async def deletethis(ctxt):
+    if not isinstance(ctxt.channel, PrivateChannel):
+        await ctxt.message.delete()
+        # else:
+        #     await ctxt.send('fuckin cant bitch')
+        await ctxt.send(files=[
+            discord.File('./assets/horse1.gif'),
+            discord.File('./assets/horse2.gif')
+        ])
+    return
+
+@bot.command(name='',
+help=f'base bot ping command')
+async def moop_mention(ctxt):
+  ctxt.send('hey')
+  return
 
 #TODO actual error handling
 # watching for message events
@@ -79,36 +130,17 @@ async def on_message(msg):
     if msg.author == bot.user:
         return
 
-    # restart on certain command
-    if msg.author.id == int(uuupah) and msg.content.lower() == 'moop, please restart':
-        await msg.channel.send('okay, restarting')
-        os.system("sh $HOME/moop.sh &")
-        sys.exit()
-        return
-
     # print messages for terminal viewing
     print(msg.author)
     print(f' > {msg.content}')
-
-    #HORSE PLINKO
-    if msg.content == 'horse plinko':
-        if msg.channel.type != 'private':
-            await msg.delete()
-        await msg.channel.send(files=[discord.File('./assets/horse1.gif'),discord.File('./assets/horse2.gif')])
-        return
-
-    # ping
-    if msg.content == 'ping':
-        await msg.channel.send('pang')
-        return
 
     if msg.author.id == int(sunday) and msg.content.lower() == 'me':
         await msg.add_reaction(f'<:moop:{shitmoop}>')
         return
 
     if re.search(r'moo+p', msg.content, flags=re.IGNORECASE):
-      await msg.add_reaction(f'<:moop:{shitmoop}>')
-      return
+        await msg.add_reaction(f'<:moop:{shitmoop}>')
+        return
 
     # watch for messages that ping the bot
     #TODO keep animation on gifs and apngs
@@ -118,58 +150,86 @@ async def on_message(msg):
         async for message in msg.channel.history(limit=20):
             if message.attachments:
                 #TODO iterate through files if the end isnt an image
-                if message.attachments[len(message.attachments)-1].content_type.startswith("image/"):
-                    print(f'$$ Image found at {message.attachments[len(message.attachments)-1].url} {now()}')
+                if message.attachments[len(message.attachments) -
+                                       1].content_type.startswith("image/"):
+                    print(
+                        f'$$ Image found at {message.attachments[len(message.attachments)-1].url} {now()}'
+                    )
 
-                    backgr = image.open(requests.get(message.attachments[len(message.attachments)-1].url, stream=True).raw)
-                    backgr_w = backgr.size[0] # background width
-                    backgr_h = backgr.size[1] # background height
+                    backgr = image.open(
+                        requests.get(
+                            message.attachments[len(message.attachments) -
+                                                1].url,
+                            stream=True).raw)
+                    backgr_w = backgr.size[0]  # background width
+                    backgr_h = backgr.size[1]  # background height
 
                     # get aspect ratios
-                    backgr_ar = backgr.size[0]/backgr.size[1]
-                    overlay_ar = overlay.size[0]/overlay.size[1]
+                    backgr_ar = backgr.size[0] / backgr.size[1]
+                    overlay_ar = overlay.size[0] / overlay.size[1]
 
                     print(f'$$ Generating new image with overlay {now()}')
 
                     # if backgr image is wider than original overlay, split the image and paste the halves separately
                     if backgr_ar > overlay_ar:
-                      #scale images to height of backgr image, preserving aspect ratio
-                      l_h_ratio = (backgr_h/float(overlay_l.size[1]))                         # get ratio of current height to background height
-                      l_w_target = int((float(overlay_l.size[0])*float(l_h_ratio)))           # get target width using current width and ratio
-                      t_overlay_l = overlay_l.resize((l_w_target, backgr_h), image.ANTIALIAS) # resize
+                        #scale images to height of backgr image, preserving aspect ratio
+                        l_h_ratio = (
+                            backgr_h / float(overlay_l.size[1])
+                        )  # get ratio of current height to background height
+                        l_w_target = int(
+                            (float(overlay_l.size[0]) * float(l_h_ratio))
+                        )  # get target width using current width and ratio
+                        t_overlay_l = overlay_l.resize(
+                            (l_w_target, backgr_h), image.ANTIALIAS)  # resize
 
-                      backgr.paste(t_overlay_l, (0,backgr.size[1]-t_overlay_l.size[1]), t_overlay_l)
+                        backgr.paste(t_overlay_l,
+                                     (0, backgr.size[1] - t_overlay_l.size[1]),
+                                     t_overlay_l)
 
-                      r_h_ratio = (backgr_h/float(overlay_r.size[1]))
-                      r_w_target = int((float(overlay_r.size[0])*float(r_h_ratio)))
-                      t_overaly_r = overlay_r.resize((r_w_target, backgr_h), image.ANTIALIAS)
+                        r_h_ratio = (backgr_h / float(overlay_r.size[1]))
+                        r_w_target = int(
+                            (float(overlay_r.size[0]) * float(r_h_ratio)))
+                        t_overaly_r = overlay_r.resize((r_w_target, backgr_h),
+                                                       image.ANTIALIAS)
 
-                      backgr.paste(t_overaly_r, (backgr.size[0]-t_overaly_r.size[0],backgr.size[1]-t_overaly_r.size[1]), t_overaly_r)
+                        backgr.paste(t_overaly_r,
+                                     (backgr.size[0] - t_overaly_r.size[0],
+                                      backgr.size[1] - t_overaly_r.size[1]),
+                                     t_overaly_r)
                     # otherwise, just do it the easy way
-                    else:  
+                    else:
                         # scale image to width of background image and paste at bottom
-                        w_ratio = (backgr_w/float(overlay.size[0]))
-                        h_target = int((float(overlay.size[1])*float(w_ratio)))
-                        t_overlay = overlay.resize((backgr_w,h_target), image.ANTIALIAS)
+                        w_ratio = (backgr_w / float(overlay.size[0]))
+                        h_target = int(
+                            (float(overlay.size[1]) * float(w_ratio)))
+                        t_overlay = overlay.resize((backgr_w, h_target),
+                                                   image.ANTIALIAS)
 
-                        backgr.paste(t_overlay, (0,backgr.size[1]-t_overlay.size[1]),t_overlay)
+                        backgr.paste(t_overlay,
+                                     (0, backgr.size[1] - t_overlay.size[1]),
+                                     t_overlay)
 
                     print(f'$$ New image generation complete {now()}')
 
                     # post image
                     with io.BytesIO() as image_binary:
-                      backgr.save(image_binary, 'PNG', optimize=True, quality=90)
-                      image_binary.seek(0)
-                      await message.channel.send(file=discord.File(fp=image_binary, filename='image.png'))
+                        backgr.save(image_binary,
+                                    'PNG',
+                                    optimize=True,
+                                    quality=90)
+                        image_binary.seek(0)
+                        await message.channel.send(file=discord.File(
+                            fp=image_binary, filename='image.png'))
 
                     print(f'$$ Reaction image posted {now()}')
                     imageposted = True
                     break
 
         if not imageposted:
-          print(f'$$ no images found {now()}')
-          await msg.channel.send(f'<:moop:{shitmoop}>')
+            print(f'$$ no images found {now()}')
+            await msg.channel.send(f'<:moop:{shitmoop}>')
         return
+
 
 bot.run(token)
 
@@ -180,7 +240,6 @@ bot.run(token)
 ## shamelessly copied from neuron at https://stackoverflow.com/questions/56060614/how-to-make-a-discord-bot-play-youtube-audio
 
 # youtube_dl.utils.bug_reports_message = lambda: ''
-
 
 # ytdl_format_options = {
 #     'format': 'bestaudio/best',
