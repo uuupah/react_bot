@@ -5,18 +5,32 @@ import re
 import requests
 import ast
 import discord
+from discord.ext.commands import Bot
+# from discord import Intents
 import pytz
 from datetime import datetime
 from PIL import Image as image
 
+
 # import youtube_dl
 # import asyncio
+
+#TODO change moop from a client to a proper bot
+#TODO chop up moop into multiple files for better organisation
+#TODO set up obsidian and PARA notes for this project
+#TODO add proper logging
+#TODO link in youtube functionality
+#TODO update requirements file to support above youtube functionality
 
 def now():
   tz = pytz.timezone('AUSTRALIA/Adelaide')
   return datetime.now(tz).strftime("-%H.%M.%S %d.%m.%y")
 
-client = discord.Client()
+# intents = Intents.all()
+# client = discord.Client()
+bot = Bot(
+  # intents=intents, 
+  command_prefix='!')
 
 shitmoop = 811211114699292672
 
@@ -48,19 +62,21 @@ overlay_l = image.open('assets/left.png')
 overlay_r = image.open('assets/right.png')
 
 # startup message
-@client.event
+@bot.event
 async def on_ready():
-    print(f'$$ logged in as {client.user} {now()}')
-    await client.wait_until_ready()
-    dad = await client.fetch_user(int(uuupah))
+    print(f'$$ logged in as {bot.user} {now()}')
+    await bot.wait_until_ready()
+    dad = await bot.fetch_user(int(uuupah))
     await dad.send(f'hello father, i have returned from the void of nonexistence {now()}')
 
 #TODO actual error handling
 # watching for message events
-@client.event
+@bot.event
 async def on_message(msg):
+    await bot.process_commands(msg)
+
     # ignore messages sent by bot
-    if msg.author == client.user:
+    if msg.author == bot.user:
         return
 
     # restart on certain command
@@ -82,8 +98,8 @@ async def on_message(msg):
         return
 
     # ping
-    if msg.content == '$ping':
-        await msg.channel.send('pong')
+    if msg.content == 'ping':
+        await msg.channel.send('pang')
         return
 
     if msg.author.id == int(sunday) and msg.content.lower() == 'me':
@@ -155,7 +171,7 @@ async def on_message(msg):
           await msg.channel.send(f'<:moop:{shitmoop}>')
         return
 
-client.run(token)
+bot.run(token)
 
 # naughty code jail
 
