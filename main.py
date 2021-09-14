@@ -93,7 +93,7 @@ async def on_message(msg):
                 if re.search(query, msg.content, flags=re.IGNORECASE):
                     reactions = pair["reactions"]
                     reaction = reactions[random.randrange(len(reactions))]
-                    reaction_id = get(client.get_all_emojis(), name=reaction)
+                    reaction_id = get(client.emojis(), name=reaction)
 
                     await msg.add_reaction(reaction_id)
                     return
