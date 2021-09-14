@@ -14,7 +14,7 @@ from datetime import datetime
 from PIL import Image as image
 
 # import youtube_dl
-# import asyncio
+import asyncio
 
 #TODO change moop from a client to a proper bot
 #TODO implement cogs
