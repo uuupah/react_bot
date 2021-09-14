@@ -6,8 +6,11 @@ import requests
 import ast
 import discord
 import pytz
+import json
+import random
 from datetime import datetime
 from PIL import Image as image
+from discord.utils import get
 
 # import youtube_dl
 # import asyncio
@@ -47,6 +50,16 @@ overlay = image.open('assets/a.png')
 overlay_l = image.open('assets/left.png')
 overlay_r = image.open('assets/right.png')
 
+def load_query_reaction_pairs (filename) :
+    if os.path.isfile('./' + str(filename)):
+        with open(str(filename), 'r') as reaction_queries_file:
+            return json.load(reaction_queries_file)
+    else:
+        return None
+
+# load in reaction queries json
+query_reaction_pairs = load_query_reaction_pairs("assets/reaction-queries.json")
+
 # startup message
 @client.event
 async def on_ready():
@@ -73,6 +86,17 @@ async def on_message(msg):
     # print messages for terminal viewing
     print(msg.author)
     print(f' > {msg.content}')
+
+    if query_reaction_pairs != None:
+        for pair in query_reaction_pairs:
+            for query in pair['queries']:
+                if re.search(query, msg.content, flags=re.IGNORECASE):
+                    reactions = pair["reactions"]
+                    reaction = reactions[random.randrange(len(reactions))]
+                    reaction_id = get(client.get_all_emojis(), name=reaction)
+
+                    await msg.add_reaction(reaction_id)
+                    return
 
     #HORSE PLINKO
     if msg.content == 'horse plinko':
