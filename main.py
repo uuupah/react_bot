@@ -13,33 +13,33 @@ import pytz
 from datetime import datetime
 from PIL import Image as image
 
-# import youtube_dl
+import youtube_dl
 import asyncio
 
-#TODO change moop from a client to a proper bot
-#TODO implement cogs
-#TODO build custom print method that returns to both the terminal and to a specific 'terminal' channel on discord
-#TODO add proper logging
-#TODO see if the moop ping can be done programmatically instead of saving an id
-#TODO chop up moop into multiple files for better organisation
-#TODO set up obsidian and PARA notes for this project
-#TODO link in youtube functionality
-#TODO update requirements file to support above youtube functionality
-#TODO keep working on adding new overlays for moops
-#TODO make some hilarious rich presence meme
+# TODO change moop from a client to a proper bot
+# TODO implement cogs
+# TODO build custom print method that returns to both the terminal and to a specific 'terminal' channel on discord
+# TODO add proper logging
+# TODO see if the moop ping can be done programmatically instead of saving an id
+# TODO chop up moop into multiple files for better organisation
+# TODO set up obsidian and PARA notes for this project
+# TODO link in youtube functionality
+# TODO update requirements file to support above youtube functionality
+# TODO keep working on adding new overlays for moops
+# TODO make some hilarious rich presence meme
+# TODO the code is definitely 100% going to require a refactor after adding the youtube functionality
 
 
 def now():
     tz = pytz.timezone('AUSTRALIA/Adelaide')
     return datetime.now(tz).strftime("-%H.%M.%S %d.%m.%y")
 
-
 # client = discord.Client()
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("!"))
 
 shitmoop = 811211114699292672
 
-#TODO slim this down, a lot of these don't need to be private
+# TODO slim this down, a lot of these don't need to be private
 # import constant values, using environ.json if local or os.environ in repl.it
 try:
     sunday = os.environ['SUNDAYID']
@@ -90,7 +90,7 @@ async def ping(ctxt):
     name='restart',
     help=f'runs the start script on moopbox and kills the current instance')
 async def restart(ctxt):
-    #i'm going to miss using the full 'moop, please restart' so try keeping that
+    # i'm going to miss using the full 'moop, please restart' so try keeping that
     await ctxt.send('okay, restarting')
     os.system("sh $HOME/moop.sh &")
     sys.exit()
@@ -109,8 +109,10 @@ async def deletethis(ctxt):
         ])
     return
 
-#TODO actual error handling
+# TODO actual error handling
 # handle all functionality that is not a command
+
+
 @bot.event
 async def on_message(msg):
     await bot.process_commands(msg)
@@ -134,7 +136,7 @@ async def on_message(msg):
         return
 
     # watch for messages that ping the bot
-    #TODO keep animation on gifs and apngs
+    # TODO keep animation on gifs and apngs
     if f'<@!{bot.user.id}>' in msg.content or f'<@{bot.user.id}>' in msg.content:
         await soy(msg)
 
@@ -143,7 +145,7 @@ async def soy(msg):
     print(f'$$ Bot pinged, searching for images {now()}')
     async for message in msg.channel.history(limit=20):
         if message.attachments:
-            #TODO iterate through files if the end isnt an image
+            # TODO iterate through files if the end isnt an image
             if message.attachments[len(message.attachments) -
                                    1].content_type.startswith("image/"):
                 print(
@@ -165,7 +167,7 @@ async def soy(msg):
 
                 # if backgr image is wider than original overlay, split the image and paste the halves separately
                 if backgr_ar > overlay_ar:
-                    #scale images to height of backgr image, preserving aspect ratio
+                    # scale images to height of backgr image, preserving aspect ratio
                     l_h_ratio = (
                         backgr_h / float(overlay_l.size[1])
                     )  # get ratio of current height to background height
@@ -224,64 +226,6 @@ bot.run(token)
 
 ###
 
-## shamelessly copied from neuron at https://stackoverflow.com/questions/56060614/how-to-make-a-discord-bot-play-youtube-audio
-
-# youtube_dl.utils.bug_reports_message = lambda: ''
-
-# ytdl_format_options = {
-#     'format': 'bestaudio/best',
-#     'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
-#     'restrictfilenames': True,
-#     'noplaylist': True,
-#     'nocheckcertificate': True,
-#     'ignoreerrors': False,
-#     'logtostderr': False,
-#     'quiet': True,
-#     'no_warnings': True,
-#     'default_search': 'auto',
-#     'source_address': '0.0.0.0' # bind to ipv4 since ipv6 addresses cause issues sometimes
-# }
-
-# ffmpeg_options = {
-#     'options': '-vn'
-# }
-
-# ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
-
-# class YTDLSource(discord.PCMVolumeTransformer):
-#     def __init__(self, source, *, data, volume=0.5):
-#         super().__init__(source, volume)
-
-#         self.data = data
-
-#         self.title = data.get('title')
-#         self.url = data.get('url')
-
-#     @classmethod
-#     async def from_url(cls, url, *, loop=None, stream=False):
-#         loop = loop or asyncio.get_event_loop()
-#         data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
-
-#         if 'entries' in data:
-#             # take first item from a playlist
-#             data = data['entries'][0]
-
-#         filename = data['url'] if stream else ytdl.prepare_filename(data)
-#         return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
-
-# @commands.command(pass_context=True)
-# async def play(self, ctx, *, url):
-#         print(url)
-#         server = ctx.message.guild
-#         voice_channel = server.voice_client
-
-#         async with ctx.typing():
-#             player = await YTDLSource.from_url(url, loop=self.bot.loop)
-#             ctx.voice_channel.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
-#         await ctx.send('Now playing: {}'.format(player.title))
-
-###
-
 # if msg.author.id == int(uuupah):
 # await msg.add_reaction(f'<:moop:{moop250}>')
 # await msg.channel.send(f'<:moop:{moop250}>')
@@ -290,3 +234,5 @@ bot.run(token)
 # if msg.author.id == int(sunday):
 #     await message.add_reaction('\N{AUBERGINE}')
 #     return
+
+###
