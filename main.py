@@ -73,11 +73,6 @@ overlay_r = image.open('assets/right.png')
 # startup message
 @bot.event
 async def on_ready():
-<<<<<<< HEAD
-    print(f'$$ logged in as {client.user} {now()}')
-    dad = await.get_user_info(uuupah)
-    await client.send_message(dad, "hello father, i have returned from the void of nonexistence")
-=======
     print(f'$$ logged in as {bot.user} {now()}')
     await bot.wait_until_ready()
     dad = await bot.fetch_user(int(uuupah))
@@ -113,8 +108,6 @@ async def deletethis(ctxt):
             discord.File('./assets/horse2.gif')
         ])
     return
-
->>>>>>> 36fa042abd3b619855077d68e006e6a077c4076f
 
 #TODO actual error handling
 # handle all functionality that is not a command
