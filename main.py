@@ -12,9 +12,10 @@ from discord.abc import PrivateChannel
 import pytz
 from datetime import datetime
 from PIL import Image as image
-
 import youtube_dl
 import asyncio
+
+from cogs.music import Music
 
 # TODO change moop from a client to a proper bot
 # TODO implement cogs
@@ -35,7 +36,7 @@ def now():
     return datetime.now(tz).strftime("-%H.%M.%S %d.%m.%y")
 
 # client = discord.Client()
-bot = commands.Bot(command_prefix=commands.when_mentioned_or("!"))
+bot = commands.Bot(command_prefix=commands.when_mentioned_or(","))
 
 shitmoop = 811211114699292672
 
@@ -103,10 +104,10 @@ async def deletethis(ctxt):
         await ctxt.message.delete()
         # else:
         #     await ctxt.send('fuckin cant bitch')
-        await ctxt.send(files=[
-            discord.File('./assets/horse1.gif'),
-            discord.File('./assets/horse2.gif')
-        ])
+    await ctxt.send(files=[
+        discord.File('./assets/horse1.gif'),
+        discord.File('./assets/horse2.gif')
+    ])
     return
 
 # TODO actual error handling
@@ -219,7 +220,7 @@ async def soy(msg):
     await msg.channel.send(f'<:moop:{shitmoop}>')
     return
 
-
+bot.add_cog(Music(bot))
 bot.run(token)
 
 # naughty code jail
