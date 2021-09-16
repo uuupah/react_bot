@@ -3,6 +3,7 @@ import sys
 import discord
 from discord.abc import PrivateChannel
 from discord.ext import commands
+from util.soy import soy as soy_cmd
 
 
 class Moop(commands.Cog):
@@ -36,4 +37,10 @@ class Moop(commands.Cog):
             discord.File('./assets/horse1.gif'),
             discord.File('./assets/horse2.gif')
         ])
+        return
+
+    @commands.command()
+    async def soy(self, ctx):
+        """soyjacks the latest image message"""
+        soy_cmd(ctx.message)
         return
