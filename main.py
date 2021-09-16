@@ -16,6 +16,7 @@ import youtube_dl
 import asyncio
 
 from cogs.music import Music
+from cogs.moop import Moop
 
 # TODO change moop from a client to a proper bot
 # TODO implement cogs
@@ -46,7 +47,7 @@ try:
     sunday = os.environ['SUNDAYID']
     uuupah = os.environ['UUUPAHID']
     token = os.environ['TOKEN']
-    moop250 = os.environ['250MOOP']
+    # moop250 = os.environ['250MOOP'] #TODO remove from environ
     # id = os.environ['CLIENTID'] #TODO remove from environ
 except:
     try:
@@ -58,7 +59,7 @@ except:
         sunday = environ['sunday']
         uuupah = environ['uuupah']
         token = environ['token']
-        moop250 = environ['moop250']
+        # moop250 = environ['moop250']
         # id = environ['id'] # as above
     except:
         print(
@@ -80,40 +81,8 @@ async def on_ready():
     await dad.send(
         f'hello father, i have returned from the void of nonexistence {now()}')
 
-
-@bot.command(name='ping', help=f'returns a "pong" when ${bot.user} is running')
-async def ping(ctxt):
-    await ctxt.send('pong')
-    return
-
-
-@bot.command(
-    name='restart',
-    help=f'runs the start script on moopbox and kills the current instance')
-async def restart(ctxt):
-    # i'm going to miss using the full 'moop, please restart' so try keeping that
-    await ctxt.send('okay, restarting')
-    os.system("sh $HOME/moop.sh &")
-    sys.exit()
-    return
-
-
-@bot.command(name='horseplinko', help=f'posts horse plinko gifs')
-async def deletethis(ctxt):
-    if not isinstance(ctxt.channel, PrivateChannel):
-        await ctxt.message.delete()
-        # else:
-        #     await ctxt.send('fuckin cant bitch')
-    await ctxt.send(files=[
-        discord.File('./assets/horse1.gif'),
-        discord.File('./assets/horse2.gif')
-    ])
-    return
-
 # TODO actual error handling
 # handle all functionality that is not a command
-
-
 @bot.event
 async def on_message(msg):
     await bot.process_commands(msg)
@@ -221,6 +190,7 @@ async def soy(msg):
     return
 
 bot.add_cog(Music(bot))
+bot.add_cog(Moop(bot, uuupah))
 bot.run(token)
 
 # naughty code jail
