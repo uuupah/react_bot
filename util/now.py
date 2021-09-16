@@ -1,5 +1,5 @@
 import pytz
-import datetime
+from datetime import datetime # fuck this library
 
 def now():
     tz = pytz.timezone('AUSTRALIA/Adelaide')
