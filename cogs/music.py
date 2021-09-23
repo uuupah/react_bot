@@ -115,45 +115,35 @@ class Music(commands.Cog):
 
     @commands.command()
     async def play(self, ctx, *, url):
-
         try:
-
             async with ctx.typing():
                 player = await YTDLSource.from_url(url,
                                                    loop=self.bot.loop,
                                                    stream=True)
-
                 if len(self.queue) == 0:
-
                     self.start_playing(ctx.voice_client, player)
                     await ctx.send(
                         f':mag_right: **Searching for** ``' + url +
-                        '``\n<:youtube:763374159567781890> **Now Playing:** ``{}'
+                        '``\n **Now Playing:** ``{}'
                         .format(player.title) + "``")
-
                 else:
-
                     self.queue[len(self.queue)] = player
                     await ctx.send(
                         f':mag_right: **Searching for** ``' + url +
-                        '``\n<:youtube:763374159567781890> **Added to queue:** ``{}'
+                        '``\n **Added to queue:** ``{}'
                         .format(player.title) + "``")
 
         except:
-
             await ctx.send("Somenthing went wrong - please try again later!")
 
     def start_playing(self, voice_client, player):
-
         self.queue[0] = player
-
         i = 0
         while i < len(self.queue):
             try:
                 voice_client.play(self.queue[i],
                                   after=lambda e: print('Player error: %s' % e)
                                   if e else None)
-
             except:
                 pass
             i += 1
@@ -161,7 +151,6 @@ class Music(commands.Cog):
     @commands.command()
     async def volume(self, ctx, volume: int):
         """Changes the player's volume"""
-
         if ctx.voice_client is None:
             return await ctx.send("Not connected to a voice channel.")
 
