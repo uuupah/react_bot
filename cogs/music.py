@@ -8,7 +8,6 @@ from discord.ext import commands
 # Suppress noise about console usage from errors
 youtube_dl.utils.bug_reports_message = lambda: ''
 
-
 ytdl_format_options = {
     'format': 'bestaudio/best',
     'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
@@ -20,12 +19,11 @@ ytdl_format_options = {
     'quiet': True,
     'no_warnings': True,
     'default_search': 'auto',
-    'source_address': '0.0.0.0' # bind to ipv4 since ipv6 addresses cause issues sometimes
+    'source_address':
+    '0.0.0.0'  # bind to ipv4 since ipv6 addresses cause issues sometimes
 }
 
-ffmpeg_options = {
-    'options': '-vn'
-}
+ffmpeg_options = {'options': '-vn'}
 
 ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
 
@@ -42,14 +40,16 @@ class YTDLSource(discord.PCMVolumeTransformer):
     @classmethod
     async def from_url(cls, url, *, loop=None, stream=False):
         loop = loop or asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
+        data = await loop.run_in_executor(
+            None, lambda: ytdl.extract_info(url, download=not stream))
 
         if 'entries' in data:
             # take first item from a playlist
             data = data['entries'][0]
 
         filename = data['url'] if stream else ytdl.prepare_filename(data)
-        return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
+        return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options),
+                   data=data)
 
 
 class Music(commands.Cog):
@@ -66,7 +66,7 @@ class Music(commands.Cog):
     #     await channel.connect()
 
     # TODO write some code that lets you download a file direct to the moopbox
-    # TODO query the playable files (or maybe read from a json of playable 
+    # TODO query the playable files (or maybe read from a json of playable
     #      files) so the user can see what is available
     # TODO use smart parsing of the input on the play command to pick if it's
     #      a local file or a url
@@ -100,62 +100,63 @@ class Music(commands.Cog):
 
     #     await ctx.send(f'Now playing: {player.title}')
 
+    @commands.command()
+    async def join(self, ctx):
 
+        if not ctx.message.author.voice:
+            await ctx.send("You are not connected to a voice channel!")
+            return
+        else:
+            channel = ctx.message.author.voice.channel
+            self.queue = {}
+            await ctx.send(f'Connected to ``{channel}``')
 
+        await channel.connect()
 
+    @commands.command()
+    async def play(self, ctx, *, url):
 
-@commands.command()
-async def join(self, ctx):
-
-    if not ctx.message.author.voice:
-        await ctx.send("You are not connected to a voice channel!")
-        return
-    else:
-        channel = ctx.message.author.voice.channel
-        self.queue = {}
-        await ctx.send(f'Connected to ``{channel}``')
-
-    await channel.connect()
-
-@commands.command()
-async def play(self, ctx, *, url):
-
-    try:
-
-        async with ctx.typing():
-            player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
-
-            if len(self.queue) == 0:
-
-                self.start_playing(ctx.voice_client, player)
-                await ctx.send(f':mag_right: **Searching for** ``' + url + '``\n<:youtube:763374159567781890> **Now Playing:** ``{}'.format(player.title) + "``")
-
-            else:
-                
-                self.queue[len(self.queue)] = player
-                await ctx.send(f':mag_right: **Searching for** ``' + url + '``\n<:youtube:763374159567781890> **Added to queue:** ``{}'.format(player.title) + "``")
-
-    except:
-
-        await ctx.send("Somenthing went wrong - please try again later!")
-
-def start_playing(self, voice_client, player):
-
-    self.queue[0] = player
-
-    i = 0
-    while i <  len(self.queue):
         try:
-            voice_client.play(self.queue[i], after=lambda e: print('Player error: %s' % e) if e else None)
+
+            async with ctx.typing():
+                player = await YTDLSource.from_url(url,
+                                                   loop=self.bot.loop,
+                                                   stream=True)
+
+                if len(self.queue) == 0:
+
+                    self.start_playing(ctx.voice_client, player)
+                    await ctx.send(
+                        f':mag_right: **Searching for** ``' + url +
+                        '``\n<:youtube:763374159567781890> **Now Playing:** ``{}'
+                        .format(player.title) + "``")
+
+                else:
+
+                    self.queue[len(self.queue)] = player
+                    await ctx.send(
+                        f':mag_right: **Searching for** ``' + url +
+                        '``\n<:youtube:763374159567781890> **Added to queue:** ``{}'
+                        .format(player.title) + "``")
 
         except:
-            pass
-        i += 1
 
+            await ctx.send("Somenthing went wrong - please try again later!")
 
+    def start_playing(self, voice_client, player):
 
+        self.queue[0] = player
 
+        i = 0
+        while i < len(self.queue):
+            try:
+                voice_client.play(self.queue[i],
+                                  after=lambda e: print('Player error: %s' % e)
+                                  if e else None)
 
+            except:
+                pass
+            i += 1
 
     @commands.command()
     async def volume(self, ctx, volume: int):
@@ -182,17 +183,18 @@ def start_playing(self, voice_client, player):
                 await ctx.author.voice.channel.connect()
             else:
                 await ctx.send("You are not connected to a voice channel.")
-                raise commands.CommandError("Author not connected to a voice channel.")
+                raise commands.CommandError(
+                    "Author not connected to a voice channel.")
         elif ctx.voice_client.is_playing():
             ctx.voice_client.stop()
+
 
 # bot = commands.Bot(command_prefix=commands.when_mentioned_or("!"),
 #                    description='Relatively simple music bot example')
 
 # @bot.event
 # async def on_ready():
-    # print(f'Logged in as {bot.user} (ID: {bot.user.id})')
-    # print('------')
-
+# print(f'Logged in as {bot.user} (ID: {bot.user.id})')
+# print('------')
 
 # bot.run("token")
