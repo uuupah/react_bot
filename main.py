@@ -10,18 +10,11 @@ from cogs.moop import Moop
 from util.soy import soy
 from util.now import now
 
-# TODO change moop from a client to a proper bot
-# TODO implement cogs
 # TODO build custom print method that returns to both the terminal and to a specific 'terminal' channel on discord
 # TODO add proper logging
-# TODO see if the moop ping can be done programmatically instead of saving an id
-# TODO chop up moop into multiple files for better organisation
-# TODO set up obsidian and PARA notes for this project
-# TODO link in youtube functionality
-# TODO update requirements file to support above youtube functionality
+# TODO add youtube queueing
 # TODO keep working on adding new overlays for moops
 # TODO make some hilarious rich presence meme
-# TODO the code is definitely 100% going to require a refactor after adding the youtube functionality
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or(","))
 
