@@ -5,7 +5,8 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import Bot
 
-from cogs.music import Music
+from cogs.joekmusic import Music
+# from cogs.music import Music
 from cogs.moop import Moop
 from util.soy import soy
 from util.now import now
