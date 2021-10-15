@@ -56,49 +56,71 @@ class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # @commands.command()
-    # async def join(self, ctx, *, channel: discord.VoiceChannel):
-    #     """Joins a voice channel"""
-
-    #     if ctx.voice_client is not None:
-    #         return await ctx.voice_client.move_to(channel)
-
-    #     await channel.connect()
-
-    # TODO write some code that lets you download a file direct to the moopbox
-    # TODO query the playable files (or maybe read from a json of playable
-    #      files) so the user can see what is available
-    # TODO use smart parsing of the input on the play command to pick if it's
-    #      a local file or a url
-
-    # @commands.command()
-    # async def play(self, ctx, *, query):
-    #     """Plays a file from the local filesystem"""
-
-    #     source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(query))
-    #     ctx.voice_client.play(source, after=lambda e: print(f'Player error: {e}') if e else None)
-
-    #     await ctx.send(f'Now playing: {query}')
-
-    # @commands.command()
-    # async def download(self, ctx, *, url):
-    #     """Plays from a url (almost anything youtube_dl supports)"""
-
-    #     async with ctx.typing():
-    #         player = await YTDLSource.from_url(url, loop=self.bot.loop)
-    #         # ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
-
-    #     # await ctx.send(f'Now playing: {player.title}')
-
-    # @commands.command()
-    # async def play(self, ctx, *, url):
-    #     """Streams from a url"""
-
-    #     async with ctx.typing():
-    #         player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
-    #         ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
-
-    #     await ctx.send(f'Now playing: {player.title}')
+    #todo
+        # state class:
+    #  - volume
+    #  - playlist (array)
+    #  - skip votes
+    #  - currently playing song
+    #  - function to check if current user requested the song
+    # 
+    # util functions
+    #  - function to check if audio is playing
+    #  - function to check if sender is in the same voice channel as the bot
+    #  - function to check if the command sender is the song requester
+    # 
+    # command functions
+    #  - internal command to get states (this is for handling multiple servers at once)
+    # 
+    #  | function                      | priority |
+    #  | ----------------------------- | -------- |
+    #  | "leave" current channel       | 3        |
+    #  | "pause" playing audio         | 2        |
+    #  | change the "volume"           | 5        |
+    #  | "skip" current song           | 2        |
+    #  | display the song "nowplaying" | 2        |
+    #  | check the "queue"             | 3        |
+    #  | "clearqueue"                  | 3        |
+    #  | "jumpqueue"                   | 4        |
+    #  | "play" a song                 | 1        |
+    # 
+    #   - leave
+    	#   - check if in a channel
+    	#   - if so, disconnect and clear now playing and the playlist
+    #  - pause
+    	#  - toggle pause state
+    #  - volume
+    	#  - change volume using client.source.volume
+    #  - skip
+    	#  - stop playing with voice_client.stop() (how does it know to play another song?)
+    	#  - voting related shit that is second priority atm
+    #  - now playing
+    	#  - get the info from the state class and spit it out
+    #  - queue
+    	#  - get the info from the state class and spit it out
+    #  - clearqueue
+    	#  - clear the info from the state class
+    #  - jumpqueue
+    	#  - use list popping and inserting to shift the song around the queue array
+    #  - play
+    	#  - make a bunch of lame checks to check that the song can be checked
+    	#  - if a song is currently being played:
+    		#  - add it to the queue and bail tf out
+    	#  - else
+    		#  - update now playing
+    		#  - clear skip votes
+    		#  - after playing, grab the next item in the list and play it
+    # 
+        # - use something equivalent to client.play(source, after=after_playing) with an after playing function that checks if theres more shit in the queue and plays it if there is
+    # 
+    # checks are done on what seems to be most commands to see if music is playing and only letting you do something if it is
+    # voice_client has a shitload of super useful functions!
+    # also, get rid of the join command! only join if someone's trying to play something! why the fuck else would you need to be in a voice channel!
+    # priority should be the states, the util functions, then the new play functionality
+    # followed by queue and clearqueue
+    # followed by skip
+    # followed by pause
+    # followed by everything else
 
     @commands.command()
     async def join(self, ctx):
