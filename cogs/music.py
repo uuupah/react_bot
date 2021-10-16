@@ -112,6 +112,11 @@ class Music(commands.Cog):
     		#  - after playing, grab the next item in the list and play it
     # 
         # - use something equivalent to client.play(source, after=after_playing) with an after playing function that checks if theres more shit in the queue and plays it if there is
+
+    @commands.command()
+    async def testplay(self, ctx):
+        ctx.send('testplay')
+        return
     # 
     # checks are done on what seems to be most commands to see if music is playing and only letting you do something if it is
     # voice_client has a shitload of super useful functions!

@@ -1,16 +1,15 @@
 import os
 import re
 import ast
-import sys
 import discord
 from discord.ext import commands
 from discord.ext.commands import Bot
 
-from cogs.joekmusic import Music
-# from cogs.music import Music
+from cogs.music import Music
 from cogs.moop import Moop
 from util.soy import soy
 from util.now import now
+
 
 # TODO change moop from a client to a proper bot
 # TODO implement cogs
@@ -24,7 +23,6 @@ from util.now import now
 # TODO keep working on adding new overlays for moops
 # TODO make some hilarious rich presence meme
 # TODO the code is definitely 100% going to require a refactor after adding the youtube functionality
-
 def main():
     bot = commands.Bot(command_prefix=commands.when_mentioned_or(","))
 
@@ -52,17 +50,17 @@ def main():
             # id = environ['id'] # as above
         except:
             print(
-                f'$$ A problem has occurred during constant variable loading {now()}'
-            )
+                f'$$ A problem has occurred during constant variable loading {now()}    '
+            )   
 
     # startup message
-    @bot.event
+    @bot.event  
     async def on_ready():
         print(f'$$ logged in as {bot.user} {now()}')
         await bot.wait_until_ready()
         dad = await bot.fetch_user(int(uuupah))
         await dad.send(
-            f'hello father, i have returned from the void of nonexistence {now()}')
+            f'hello (test) father, i have returned from the void of nonexistence {now()}')
 
     # TODO actual error handling
     # handle all functionality that is not a command
@@ -90,16 +88,16 @@ def main():
 
         # watch for messages that ping the bot
         # TODO keep animation on gifs and apngs
-        if f'<@!{bot.user.id}>' in msg.content or f'<@{bot.user.id}>' in msg.content:
+        if f'<@!{bot.user.id}>' in msg.content or f'<@{bot.user.id}>' in    msg.content:
             await soy(msg)
 
     bot.add_cog(Music(bot))
     bot.add_cog(Moop(bot, uuupah))
     bot.run(token)
 
-if __name__ == '__main__':
-    sys.exit(main())
-
+if __name__ == "__main__":
+    main()
+    
 # naughty code jail
 
 ###
