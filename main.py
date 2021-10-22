@@ -24,7 +24,8 @@ from util.now import now
 # TODO make some hilarious rich presence meme
 # TODO the code is definitely 100% going to require a refactor after adding the youtube functionality
 def main():
-    bot = commands.Bot(command_prefix=commands.when_mentioned_or(","))
+    prefix = ','
+    bot = commands.Bot(command_prefix=commands.when_mentioned_or(prefix))
 
     shitmoop = 811211114699292672
 
@@ -61,6 +62,7 @@ def main():
         dad = await bot.fetch_user(int(uuupah))
         await dad.send(
             f'hello (test) father, i have returned from the void of nonexistence {now()}')
+        await bot.change_presence(activity=discord.Game(f'{prefix}help'))
 
     # TODO actual error handling
     # handle all functionality that is not a command

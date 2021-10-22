@@ -95,7 +95,7 @@ class Music(commands.Cog):
         client.play(source, after=after_playing)
 
     @commands.command()
-    async def testplay(self, ctx, *, url):
+    async def play(self, ctx, *, url):
         if ctx.author.voice is not None and ctx.author.voice.channel is not None:
             channel = ctx.author.voice.channel
             try:
