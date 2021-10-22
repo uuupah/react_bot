@@ -56,7 +56,7 @@ def main():
         await bot.wait_until_ready()
         dad = await bot.fetch_user(int(uuupah))
         await dad.send(
-            f'hello (test) father, i have returned from the void of nonexistence {now()}')
+            f'hello father, i have returned from the void of nonexistence {now()}')
         await bot.change_presence(activity=discord.Game(f'{prefix}help'))
 
     # TODO actual error handling
