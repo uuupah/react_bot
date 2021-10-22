@@ -42,5 +42,5 @@ class Moop(commands.Cog):
     @commands.command()
     async def soy(self, ctx):
         """soyjacks the latest image message"""
-        soy_cmd(ctx.message)
+        await soy_cmd(ctx.message)
         return
