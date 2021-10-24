@@ -96,8 +96,8 @@ class Music(commands.Cog):
 
     @commands.command()
     async def play(self, ctx, *, url):
-        if ctx.author.voice is not None and ctx.author.voice.channel is not None:
-            channel = ctx.author.voice.channel
+        client = ctx.guild.voice_client
+        if client and client.channel:
             try:
                 video = Video(url, ctx.author)
             except ytdl.DownloadError as e:
@@ -105,8 +105,20 @@ class Music(commands.Cog):
                 await ctx.send(
                     "There was an error downloading your video, sorry.")
                 return
-            client = await channel.connect()
-            self._play_song(client, video)
+            playlist.append(video)
+            await ctx.send("added to queue.", embed=video.get_embed())
+        else:
+            if ctx.author.voice is not None and ctx.author.voice.channel is not None:
+                channel = ctx.author.voice.channel
+                try:
+                    video = Video(url, ctx.author)
+                except ytdl.DownloadError as e:
+                    print(f"Error downloading video: {e}")
+                    await ctx.send(
+                        "There was an error downloading your video, sorry.")
+                    return
+                client = await channel.connect()
+                self._play_song(client, video)
 
         # await ctx.send('testplay')
         # if now_playing:
@@ -118,7 +130,7 @@ class Music(commands.Cog):
     @commands.command() 
     async def stop(self, ctx):
         client = ctx.guild.voice_client
-        if client and client.channel:
+        if client and client.channel: # this implies bot is currently running
             await client.disconnect()
             playlist = []
             now_playing = None
