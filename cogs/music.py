@@ -114,6 +114,16 @@ class Music(commands.Cog):
         # else:
         #     await self._play_song(ctx, song)
         # return
+
+    @commands.command() 
+    async def stop(self, ctx):
+        client = ctx.guild.voice_client
+        if client and client.channel:
+            await client.disconnect()
+            playlist = []
+            now_playing = None
+        else:
+            raise commands.CommandError("not in a voice channel.")
     # 
     # checks are done on what seems to be most commands to see if music is playing and only letting you do something if it is
     # voice_client has a shitload of super useful functions!
