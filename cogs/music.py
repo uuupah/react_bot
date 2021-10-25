@@ -1,6 +1,7 @@
 import asyncio
 import time
 import discord
+from discord.ext.commands.errors import CommandError
 import youtube_dl as ytdl
 
 from discord.ext import commands
@@ -126,6 +127,10 @@ class Music(commands.Cog):
         # else:
         #     await self._play_song(ctx, song)
         # return
+
+    @commands.command()
+    async def skip(self, ctx):
+        ctx.guild.voice_client.stop() # maximum anarchy mode
 
     @commands.command() 
     async def stop(self, ctx):
