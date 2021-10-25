@@ -1,6 +1,7 @@
 import asyncio
 import time
 import discord
+from discord.ext.commands.errors import CommandError
 import youtube_dl as ytdl
 
 from discord.ext import commands
@@ -20,6 +21,9 @@ Also, https://ffmpeg.org/ffmpeg-protocols.html for command line option reference
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.playlist = playlist
+        self.skip_votes = skip_votes
+        self.volume = volume
 
     #todo
         # state class:
@@ -78,9 +82,10 @@ class Music(commands.Cog):
     # 
         # - use something equivalent to client.play(source, after=after_playing) with an after playing function that checks if theres more shit in the queue and plays it if there is
 
+    #TODO do it yourself
     def _play_song(self, client, song):
-        now_playing = song
-        skip_votes = set()  # clear skip votes
+        self.now_playing = song
+        self.skip_votes = set()  # clear skip votes
         source = discord.PCMVolumeTransformer(
             discord.FFmpegPCMAudio(song.stream_url, before_options=FFMPEG_BEFORE_OPTS), volume=volume)
 
@@ -89,11 +94,14 @@ class Music(commands.Cog):
                 next_song = playlist.pop(0)
                 self._play_song(client, next_song)
             else:
+                self.now_playing = None
+                playlist.clear() #this probably isnt necessary
                 asyncio.run_coroutine_threadsafe(client.disconnect(),
                                                  self.bot.loop)
 
         client.play(source, after=after_playing)
 
+    #TODO do it yourself
     @commands.command()
     async def play(self, ctx, *, url):
         client = ctx.guild.voice_client
@@ -127,13 +135,35 @@ class Music(commands.Cog):
         #     await self._play_song(ctx, song)
         # return
 
+    @commands.command()
+    async def skip(self, ctx):
+        ctx.guild.voice_client.stop() # maximum anarchy mode
+        return
+
+    @commands.command()
+    async def queue(self, ctx):
+        if self.now_playing == None:
+            await ctx.send('nothings playing :-)')
+            return
+
+        embed = discord.Embed(title = 'Now Playing')
+
+        
+
+        # names = []
+        # for video in playlist:
+
+        await ctx.send(embed = embed)
+        return
+
+    #TODO do it yourself
     @commands.command() 
     async def stop(self, ctx):
         client = ctx.guild.voice_client
         if client and client.channel: # this implies bot is currently running
             await client.disconnect()
-            playlist = []
-            now_playing = None
+            self.playlist = []
+            self.now_playing = None
         else:
             raise commands.CommandError("not in a voice channel.")
     # 
@@ -165,6 +195,7 @@ YTDL_OPTS = {
     "extract_flat": "in_playlist"
 }
 
+#TODO do it yourself
 class Video:
     """Class containing information about a particular video."""
 
@@ -181,6 +212,7 @@ class Video:
                 "thumbnail"] if "thumbnail" in video else None
             self.requested_by = requested_by
 
+    #TODO recognise playlists and load playlists
     def _get_info(self, video_url):
         with ytdl.YoutubeDL(YTDL_OPTS) as ydl:
             info = ydl.extract_info(video_url, download=False)
