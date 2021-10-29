@@ -18,6 +18,8 @@ from util.now import now
 # TODO keep working on adding new overlays for moops
 # TODO make some hilarious rich presence meme
 # TODO the code is definitely 100% going to require a refactor after adding the youtube functionality
+
+
 def main():
     prefix = '='
     bot = commands.Bot(command_prefix=prefix)
@@ -47,10 +49,10 @@ def main():
         except:
             print(
                 f'$$ A problem has occurred during constant variable loading {now()}'
-            )   
+            )
 
     # startup message
-    @bot.event  
+    @bot.event
     async def on_ready():
         print(f'$$ logged in as {bot.user} {now()}')
         await bot.wait_until_ready()
@@ -85,19 +87,21 @@ def main():
 
         # watch for messages that ping the bot
         # TODO keep animation on gifs and apngs
-        if f'<@!{bot.user.id}>' in msg.content or f'<@{bot.user.id}>' in msg.content:
+        bot_id = bot.user.id
+        if f'<@!{bot_id}>' in msg.content or f'<@{bot_id}>' in msg.content:
             if len(msg.content.lstrip().split()) > 1:
                 await soy(msg, msg.content.lstrip().split()[1])
-            else: 
+            else:
                 await soy(msg, None)
 
     bot.add_cog(Music(bot))
     bot.add_cog(Moop(bot, uuupah))
     bot.run(token)
 
+
 if __name__ == "__main__":
     main()
-    
+
 # naughty code jail
 
 ###
