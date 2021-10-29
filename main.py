@@ -20,7 +20,7 @@ from util.now import now
 # TODO the code is definitely 100% going to require a refactor after adding the youtube functionality
 def main():
     prefix = '='
-    bot = commands.Bot(command_prefix=commands.when_mentioned_or(prefix))
+    bot = commands.Bot(command_prefix=prefix)
 
     shitmoop = 811211114699292672
 
@@ -85,8 +85,11 @@ def main():
 
         # watch for messages that ping the bot
         # TODO keep animation on gifs and apngs
-        if f'<@!{bot.user.id}>' in msg.content or f'<@{bot.user.id}>' in    msg.content:
-            await soy(msg)
+        if f'<@!{bot.user.id}>' in msg.content or f'<@{bot.user.id}>' in msg.content:
+            if len(msg.content.lstrip().split()) > 1:
+                await soy(msg, msg.content.lstrip().split()[1])
+            else: 
+                await soy(msg, None)
 
     bot.add_cog(Music(bot))
     bot.add_cog(Moop(bot, uuupah))

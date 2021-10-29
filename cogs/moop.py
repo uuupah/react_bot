@@ -24,15 +24,12 @@ class Moop(commands.Cog):
             await ctx.send('okay, restarting')
             os.system("sh $HOME/moop.sh &")
             sys.exit()
-            return
 
     @commands.command()
     async def horseplinko(self, ctx):
         """posts horse plinko"""
         if not isinstance(ctx.channel, PrivateChannel):
             await ctx.message.delete()
-            # else:
-            #     await ctxt.send('fuckin cant bitch')
         await ctx.send(files=[
             discord.File('./assets/horse1.gif'),
             discord.File('./assets/horse2.gif')
@@ -40,7 +37,10 @@ class Moop(commands.Cog):
         return
 
     @commands.command()
-    async def soy(self, ctx):
+    async def soy(self, ctx, *argv):
         """soyjacks the latest image message"""
-        await soy_cmd(ctx.message)
+        if len(argv) > 0:
+            await soy_cmd(ctx.message, argv[0])
+        else:
+            await soy_cmd(ctx.message, None)
         return
