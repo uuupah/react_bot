@@ -19,7 +19,7 @@ from util.now import now
 # TODO make some hilarious rich presence meme
 # TODO the code is definitely 100% going to require a refactor after adding the youtube functionality
 def main():
-    prefix = ','
+    prefix = '='
     bot = commands.Bot(command_prefix=commands.when_mentioned_or(prefix))
 
     shitmoop = 811211114699292672
@@ -46,7 +46,7 @@ def main():
             # id = environ['id'] # as above
         except:
             print(
-                f'$$ A problem has occurred during constant variable loading {now()}    '
+                f'$$ A problem has occurred during constant variable loading {now()}'
             )   
 
     # startup message

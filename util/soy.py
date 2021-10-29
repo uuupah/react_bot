@@ -1,6 +1,7 @@
 import requests
 import io
 import discord
+import glob
 from PIL import Image as image
 from util.now import now
 
@@ -11,6 +12,15 @@ shitmoop = 811211114699292672
 overlay = image.open('assets/a.png')
 overlay_l = image.open('assets/left.png')
 overlay_r = image.open('assets/right.png')
+
+im = {}
+
+for filename in glob.glob('assets/overlays/*.png'):
+    im[filename
+        .replace('assets/overlays/','')
+        .replace('.png','')] = image.open(filename)
+
+print(im)
 
 async def soy(msg):
     print(f'$$ Bot pinged, searching for images {now()}')
@@ -27,8 +37,6 @@ async def soy(msg):
                     requests.get(message.attachments[len(message.attachments) -
                                                      1].url,
                                  stream=True).raw)
-                backgr_w = backgr.size[0]  # background width
-                backgr_h = backgr.size[1]  # background height
 
                 # get aspect ratios
                 backgr_ar = backgr.size[0] / backgr.size[1]
@@ -38,41 +46,10 @@ async def soy(msg):
 
                 # if backgr image is wider than original overlay, split the image and paste the halves separately
                 if backgr_ar > overlay_ar:
-                    # scale images to height of backgr image, preserving aspect ratio
-                    l_h_ratio = (
-                        backgr_h / float(overlay_l.size[1])
-                    )  # get ratio of current height to background height
-                    l_w_target = int(
-                        (float(overlay_l.size[0]) * float(l_h_ratio)
-                         ))  # get target width using current width and ratio
-                    t_overlay_l = overlay_l.resize((l_w_target, backgr_h),
-                                                   image.ANTIALIAS)  # resize
-
-                    backgr.paste(t_overlay_l,
-                                 (0, backgr.size[1] - t_overlay_l.size[1]),
-                                 t_overlay_l)
-
-                    r_h_ratio = (backgr_h / float(overlay_r.size[1]))
-                    r_w_target = int(
-                        (float(overlay_r.size[0]) * float(r_h_ratio)))
-                    t_overaly_r = overlay_r.resize((r_w_target, backgr_h),
-                                                   image.ANTIALIAS)
-
-                    backgr.paste(t_overaly_r,
-                                 (backgr.size[0] - t_overaly_r.size[0],
-                                  backgr.size[1] - t_overaly_r.size[1]),
-                                 t_overaly_r)
+                    backgr = _wide_overlay_split(backgr, overlay_l, overlay_r)
                 # otherwise, just do it the easy way
                 else:
-                    # scale image to width of background image and paste at bottom
-                    w_ratio = (backgr_w / float(overlay.size[0]))
-                    h_target = int((float(overlay.size[1]) * float(w_ratio)))
-                    t_overlay = overlay.resize((backgr_w, h_target),
-                                               image.ANTIALIAS)
-
-                    backgr.paste(t_overlay,
-                                 (0, backgr.size[1] - t_overlay.size[1]),
-                                 t_overlay)
+                    backgr = _narrow_overlay(backgr, overlay)
 
                 print(f'$$ New image generation complete {now()}')
 
@@ -89,3 +66,45 @@ async def soy(msg):
     print(f'$$ no images found {now()}')
     await msg.channel.send(f'<:moop:{shitmoop}>')
     return
+
+def _wide_overlay_split(backgr, overlay_l, overlay_r):
+    backgr_h = backgr.size[1]  # background height
+    l_h_ratio = (
+        backgr_h / float(overlay_l.size[1])
+    )  # get ratio of current height to background height
+    l_w_target = int(
+        (float(overlay_l.size[0]) * float(l_h_ratio)
+            ))  # get target width using current width and ratio
+    t_overlay_l = overlay_l.resize((l_w_target, backgr_h),
+                                    image.ANTIALIAS)  # resize
+
+    backgr.paste(t_overlay_l,
+                    (0, backgr.size[1] - t_overlay_l.size[1]),
+                    t_overlay_l)
+
+    r_h_ratio = (backgr_h / float(overlay_r.size[1]))
+    r_w_target = int(
+        (float(overlay_r.size[0]) * float(r_h_ratio)))
+    t_overaly_r = overlay_r.resize((r_w_target, backgr_h),
+                                    image.ANTIALIAS)
+
+    backgr.paste(t_overaly_r,
+                    (backgr.size[0] - t_overaly_r.size[0],
+                    backgr.size[1] - t_overaly_r.size[1]),
+                    t_overaly_r)
+    return backgr
+
+def _wide_overlay(backgr, overlay):
+    return backgr
+
+def _narrow_overlay(backgr, overlay):
+    backgr_w = backgr.size[0]  # background width
+    w_ratio = (backgr_w / float(overlay.size[0]))
+    h_target = int((float(overlay.size[1]) * float(w_ratio)))
+    t_overlay = overlay.resize((backgr_w, h_target),
+                               image.ANTIALIAS)
+
+    backgr.paste(t_overlay,
+                 (0, backgr.size[1] - t_overlay.size[1]),
+                 t_overlay)
+    return backgr
