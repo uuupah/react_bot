@@ -24,7 +24,7 @@ for filename in glob.glob('assets/overlays/*.png'):
 print(im)
 
 
-async def soy(msg, style):
+async def soy(msg, style=None):
     print(f'$$ Bot pinged, searching for images {now()}')
     async for message in msg.channel.history(limit=20):
         if message.attachments:
@@ -46,11 +46,14 @@ async def soy(msg, style):
 
                 print(f'$$ Generating new image with overlay {now()}')
 
-                # if backgr image is wider than original overlay, split the 
+                # if backgr image is wider than original overlay, and an _l and
+                # _r version of the current overlay exist, split the
                 # image and paste the halves separately
                 if backgr_ar > overlay_ar:
                     backgr = _wide_overlay_split(backgr, 'soy_l', 'soy_r')
-                # otherwise, just do it the easy way
+                # elif backgr_ar > overlay_ar but there is no _l and _r
+                #   place the single image on the background
+                # else just do it the easy way
                 else:
                     backgr = _narrow_overlay(backgr, im['soy'])
 
@@ -94,7 +97,15 @@ def _wide_overlay_split(backgr, style_l, style_r):
     return backgr
 
 
-def _wide_overlay(backgr, overlay):
+def _wide_overlay_centre(backgr, overlay):
+    # find height of background image
+    # resize overlay to ratio according to background image height
+    # if overlay name ends in _l
+    #   overlay image on background on the left
+    # if overlay name ends in _r
+    #   overlay image on background on the right
+    # else
+    #   overlay image on background in the centre
     return backgr
 
 

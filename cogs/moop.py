@@ -40,7 +40,7 @@ class Moop(commands.Cog):
     async def soy(self, ctx, *argv):
         """soyjacks the latest image message"""
         if len(argv) > 0:
-            await soy_cmd(ctx.message, argv[0])
+            await soy_cmd(ctx.message, style=argv[0])
         else:
-            await soy_cmd(ctx.message, None)
+            await soy_cmd(ctx.message)
         return

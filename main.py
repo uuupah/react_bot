@@ -10,14 +10,11 @@ from cogs.moop import Moop
 from util.soy import soy
 from util.now import now
 
-# TODO change moop from a client to a proper bot
-# TODO implement cogs
-# TODO build custom print method that returns to both the terminal and to a specific 'terminal' channel on discord
+# TODO build custom print method that returns to both the terminal and to a 
+#   specific 'terminal' channel on discord
 # TODO add proper logging
 # TODO add youtube queueing
 # TODO keep working on adding new overlays for moops
-# TODO make some hilarious rich presence meme
-# TODO the code is definitely 100% going to require a refactor after adding the youtube functionality
 
 
 def main():
@@ -90,9 +87,9 @@ def main():
         bot_id = bot.user.id
         if f'<@!{bot_id}>' in msg.content or f'<@{bot_id}>' in msg.content:
             if len(msg.content.lstrip().split()) > 1:
-                await soy(msg, msg.content.lstrip().split()[1])
+                await soy(msg, style=msg.content.lstrip().split()[1])
             else:
-                await soy(msg, None)
+                await soy(msg)
 
     bot.add_cog(Music(bot))
     bot.add_cog(Moop(bot, uuupah))
