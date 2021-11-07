@@ -4,6 +4,7 @@ import discord
 from discord.abc import PrivateChannel
 from discord.ext import commands
 from util.soy import soy as soy_cmd
+from util.soy import get_overlays
 
 
 class Moop(commands.Cog):
@@ -44,3 +45,20 @@ class Moop(commands.Cog):
         else:
             await soy_cmd(ctx.message)
         return
+
+    @commands.command()
+    async def overlays(self, ctx):
+        """returns all available soy overlays"""
+        overlays = get_overlays()
+
+        i=1
+        desc=''
+        for key in overlays.keys():
+           desc += f'{i}. {key}\n'
+           i += 1 
+        embed = discord.Embed(
+            title='available overlays',
+            description=desc)
+
+        await ctx.send(embed=embed)
+        await ctx.send(overlays.keys())
