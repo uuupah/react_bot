@@ -86,10 +86,11 @@ def main():
         # TODO keep animation on gifs and apngs
         bot_id = bot.user.id
         if f'<@!{bot_id}>' in msg.content or f'<@{bot_id}>' in msg.content:
+            # if a style has been specified
             if len(msg.content.lstrip().split()) > 1:
                 await soy(msg, style=msg.content.lstrip().split()[1])
             else:
-                await soy(msg)
+                await soy(msg, style='soy')
 
     bot.add_cog(Music(bot))
     bot.add_cog(Moop(bot, uuupah))
