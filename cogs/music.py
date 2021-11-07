@@ -18,6 +18,7 @@ See https://stackoverflow.com/questions/43218292/youtubedl-read-error-with-disco
 Also, https://ffmpeg.org/ffmpeg-protocols.html for command line option reference.
 """
 
+
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -25,22 +26,22 @@ class Music(commands.Cog):
         self.skip_votes = skip_votes
         self.volume = volume
 
-    #todo
+    # todo
         # state class:
     #  - volume
     #  - playlist (array)
     #  - skip votes
     #  - currently playing song
     #  - function to check if current user requested the song
-    # 
+    #
     # util functions
     #  - function to check if audio is playing
     #  - function to check if sender is in the same voice channel as the bot
     #  - function to check if the command sender is the song requester
-    # 
+    #
     # command functions
     #  - internal command to get states (this is for handling multiple servers at once)
-    # 
+    #
     #  | function                      | priority |
     #  | ----------------------------- | -------- |
     #  | "leave" current channel       | 3        |
@@ -52,42 +53,45 @@ class Music(commands.Cog):
     #  | "clearqueue"                  | 3        |
     #  | "jumpqueue"                   | 4        |
     #  | "play" a song                 | 1        |
-    # 
+    #
     #   - leave
-    	#   - check if in a channel
-    	#   - if so, disconnect and clear now playing and the playlist
+        #   - check if in a channel
+        #   - if so, disconnect and clear now playing and the playlist
     #  - pause
-    	#  - toggle pause state
+        #  - toggle pause state
     #  - volume
-    	#  - change volume using client.source.volume
+        #  - change volume using client.source.volume
     #  - skip
-    	#  - stop playing with voice_client.stop() (how does it know to play another song?)
-    	#  - voting related shit that is second priority atm
+        #  - stop playing with voice_client.stop() (how does it know to play another song?)
+        #  - voting related shit that is second priority atm
     #  - now playing
-    	#  - get the info from the state class and spit it out
+        #  - get the info from the state class and spit it out
     #  - queue
-    	#  - get the info from the state class and spit it out
+        #  - get the info from the state class and spit it out
     #  - clearqueue
-    	#  - clear the info from the state class
+        #  - clear the info from the state class
     #  - jumpqueue
-    	#  - use list popping and inserting to shift the song around the queue array
+        #  - use list popping and inserting to shift the song around the queue array
     #  - play
-    	#  - make a bunch of lame checks to check that the song can be checked
-    	#  - if a song is currently being played:
-    		#  - add it to the queue and bail tf out
-    	#  - else
-    		#  - update now playing
-    		#  - clear skip votes
-    		#  - after playing, grab the next item in the list and play it
-    # 
+        #  - make a bunch of lame checks to check that the song can be checked
+        #  - if a song is currently being played:
+        #  - add it to the queue and bail tf out
+        #  - else
+        #  - update now playing
+        #  - clear skip votes
+        #  - after playing, grab the next item in the list and play it
+    #
         # - use something equivalent to client.play(source, after=after_playing) with an after playing function that checks if theres more shit in the queue and plays it if there is
 
-    #TODO do it yourself
+    # TODO do it yourself
     def _play_song(self, client, song):
         self.now_playing = song
         self.skip_votes = set()  # clear skip votes
         source = discord.PCMVolumeTransformer(
-            discord.FFmpegPCMAudio(song.stream_url, before_options=FFMPEG_BEFORE_OPTS), volume=volume)
+            discord.FFmpegPCMAudio(
+                song.stream_url,
+                before_options=FFMPEG_BEFORE_OPTS),
+            volume=volume)
 
         def after_playing(err):
             if len(playlist) > 0:
@@ -95,16 +99,17 @@ class Music(commands.Cog):
                 self._play_song(client, next_song)
             else:
                 self.now_playing = None
-                playlist.clear() #this probably isnt necessary
+                playlist.clear()  # this probably isnt necessary
                 asyncio.run_coroutine_threadsafe(client.disconnect(),
                                                  self.bot.loop)
 
         client.play(source, after=after_playing)
 
-    #TODO do it yourself
+    # TODO do it yourself
     @commands.command()
     async def play(self, ctx, *, url):
         client = ctx.guild.voice_client
+        voice = ctx.author.voice
         if client and client.channel:
             try:
                 video = Video(url, ctx.author)
@@ -116,8 +121,8 @@ class Music(commands.Cog):
             playlist.append(video)
             await ctx.send("added to queue.", embed=video.get_embed())
         else:
-            if ctx.author.voice is not None and ctx.author.voice.channel is not None:
-                channel = ctx.author.voice.channel
+            if voice is not None and voice.channel is not None:
+                channel = voice.channel
                 try:
                     video = Video(url, ctx.author)
                 except ytdl.DownloadError as e:
@@ -137,7 +142,7 @@ class Music(commands.Cog):
 
     @commands.command()
     async def skip(self, ctx):
-        ctx.guild.voice_client.stop() # maximum anarchy mode
+        ctx.guild.voice_client.stop()  # maximum anarchy mode
         return
 
     @commands.command()
@@ -146,27 +151,25 @@ class Music(commands.Cog):
             await ctx.send('nothings playing :-)')
             return
 
-        embed = discord.Embed(title = 'Now Playing')
-
-        
+        embed = discord.Embed(title='Now Playing')
 
         # names = []
         # for video in playlist:
 
-        await ctx.send(embed = embed)
+        await ctx.send(embed=embed)
         return
 
-    #TODO do it yourself
-    @commands.command() 
+    # TODO do it yourself
+    @commands.command()
     async def stop(self, ctx):
         client = ctx.guild.voice_client
-        if client and client.channel: # this implies bot is currently running
+        if client and client.channel:  # this implies bot is currently running
             await client.disconnect()
             self.playlist = []
             self.now_playing = None
         else:
             raise commands.CommandError("not in a voice channel.")
-    # 
+    #
     # checks are done on what seems to be most commands to see if music is playing and only letting you do something if it is
     # voice_client has a shitload of super useful functions!
     # also, get rid of the join command! only join if someone's trying to play something! why the fuck else would you need to be in a voice channel!
@@ -186,6 +189,7 @@ class Music(commands.Cog):
 
 # bot.run("token")
 
+
 # flogged wholesale from joek
 # TODO do this myself
 YTDL_OPTS = {
@@ -195,7 +199,9 @@ YTDL_OPTS = {
     "extract_flat": "in_playlist"
 }
 
-#TODO do it yourself
+# TODO do it yourself
+
+
 class Video:
     """Class containing information about a particular video."""
 
@@ -212,7 +218,7 @@ class Video:
                 "thumbnail"] if "thumbnail" in video else None
             self.requested_by = requested_by
 
-    #TODO recognise playlists and load playlists
+    # TODO recognise playlists and load playlists
     def _get_info(self, video_url):
         with ytdl.YoutubeDL(YTDL_OPTS) as ydl:
             info = ydl.extract_info(video_url, download=False)

@@ -10,17 +10,16 @@ from cogs.moop import Moop
 from util.soy import soy
 from util.now import now
 
-# TODO change moop from a client to a proper bot
-# TODO implement cogs
-# TODO build custom print method that returns to both the terminal and to a specific 'terminal' channel on discord
+# TODO build custom print method that returns to both the terminal and to a 
+#   specific 'terminal' channel on discord
 # TODO add proper logging
 # TODO add youtube queueing
 # TODO keep working on adding new overlays for moops
-# TODO make some hilarious rich presence meme
-# TODO the code is definitely 100% going to require a refactor after adding the youtube functionality
+
+
 def main():
-    prefix = ','
-    bot = commands.Bot(command_prefix=commands.when_mentioned_or(prefix))
+    prefix = '='
+    bot = commands.Bot(command_prefix=prefix)
 
     shitmoop = 811211114699292672
 
@@ -46,11 +45,11 @@ def main():
             # id = environ['id'] # as above
         except:
             print(
-                f'$$ A problem has occurred during constant variable loading {now()}    '
-            )   
+                f'$$ A problem has occurred during constant variable loading {now()}'
+            )
 
     # startup message
-    @bot.event  
+    @bot.event
     async def on_ready():
         print(f'$$ logged in as {bot.user} {now()}')
         await bot.wait_until_ready()
@@ -85,16 +84,22 @@ def main():
 
         # watch for messages that ping the bot
         # TODO keep animation on gifs and apngs
-        if f'<@!{bot.user.id}>' in msg.content or f'<@{bot.user.id}>' in    msg.content:
-            await soy(msg)
+        bot_id = bot.user.id
+        if f'<@!{bot_id}>' in msg.content or f'<@{bot_id}>' in msg.content:
+            # if a style has been specified
+            if len(msg.content.lstrip().split()) > 1:
+                await soy(msg, style=msg.content.lstrip().split()[1])
+            else:
+                await soy(msg, style='soy')
 
     bot.add_cog(Music(bot))
     bot.add_cog(Moop(bot, uuupah))
     bot.run(token)
 
+
 if __name__ == "__main__":
     main()
-    
+
 # naughty code jail
 
 ###
