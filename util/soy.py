@@ -13,20 +13,18 @@ learn2spell = 'https://www.youtube.com/watch?v=jfzsa0DDc0o'
 # overlay = image.open('assets/a.png')
 # overlay_l = image.open('assets/left.png')
 # overlay_r = image.open('assets/right.png')
-
-im = {}
-
-for filename in glob.glob('assets/overlays/*.png'):
-    im[filename
-        .replace('assets/overlays/', '')
-        .replace('.png', '')] = image.open(filename)
-
-print(im)
+def get_overlays():
+    out = {}
+    for filename in glob.glob('assets/overlays/*.png'):
+        out[filename
+            .replace('assets/overlays/', '')
+            .replace('.png', '')] = image.open(filename)
+    return out
 
 # TODO add orientation argument to push to left or right or top or bottom
-
-
 async def soy(msg, style=None):
+    im = get_overlays()
+
     print(f'$$ Bot pinged, searching for images {now()}')
     async for message in msg.channel.history(limit=20):
         if message.attachments:
@@ -54,15 +52,15 @@ async def soy(msg, style=None):
                 # if backgr image is wider than original overlay, and an _l and
                 # _r version of the current overlay exist, split the
                 # image and paste the halves separately
-                if backgr_ar > overlay_ar and style + '_l' in im and style + '_r' in im:
+                if backgr_ar > overlay_ar and im[style + '_l'] in im and im[style + '_r'] in im:
                     backgr = _wide_overlay_split(
                         backgr, style + '_l', style + '_r')
                 elif backgr_ar > overlay_ar:
-                    backgr = _wide_overlay_centre(backgr, style)
+                    backgr = _wide_overlay_centre(backgr, im[style])
                 #   place the single image on the background
                 # else just do it the easy way
                 else:
-                    backgr = _narrow_overlay(backgr, style)
+                    backgr = _narrow_overlay(backgr, im[style])
 
                 print(f'$$ New image generation complete {now()}')
 
@@ -81,9 +79,9 @@ async def soy(msg, style=None):
     return
 
 
-def _wide_overlay_split(backgr, style_l, style_r):
-    overlay_l = im[style_l]
-    overlay_r = im[style_r]
+def _wide_overlay_split(backgr, overlay_l, overlay_r):
+    # overlay_l = im[style_l]
+    # overlay_r = im[style_r]
     backgr_h = backgr.size[1]  # background height
     # get ratio of current height to background height
     l_h_ratio = (backgr_h / float(overlay_l.size[1]))
@@ -104,8 +102,8 @@ def _wide_overlay_split(backgr, style_l, style_r):
     return backgr
 
 
-def _wide_overlay_centre(backgr, style):
-    overlay = im[style]
+def _wide_overlay_centre(backgr, overlay):
+    # overlay = im[style]
     # find height of background image
     backgr_h = backgr.size[1]
     # resize overlay to ratio according to background image height
@@ -125,8 +123,8 @@ def _wide_overlay_centre(backgr, style):
     return backgr
 
 
-def _narrow_overlay(backgr, style):
-    overlay = im[style]
+def _narrow_overlay(backgr, overlay):
+    # overlay = im[style]
     backgr_w = backgr.size[0]  # background width
     w_ratio = (backgr_w / float(overlay.size[0]))
     h_target = int(float(overlay.size[1]) * float(w_ratio))
