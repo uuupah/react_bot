@@ -61,4 +61,3 @@ class Moop(commands.Cog):
             description=desc)
 
         await ctx.send(embed=embed)
-        await ctx.send(overlays.keys())

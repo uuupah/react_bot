@@ -13,8 +13,8 @@ from util.now import now
 # TODO build custom print method that returns to both the terminal and to a 
 #   specific 'terminal' channel on discord
 # TODO add proper logging
-# TODO add youtube queueing
-# TODO keep working on adding new overlays for moops
+# TODO fix jpeg rotation issue
+# TODO finish overlay command
 
 
 def main():
