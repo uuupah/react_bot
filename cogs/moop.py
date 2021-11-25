@@ -38,6 +38,16 @@ class Moop(commands.Cog):
         return
 
     @commands.command()
+    async def rockandstone(self, ctx):
+        """posts rock and stone"""
+        if not isinstance(ctx.channel, PrivateChannel):
+            await ctx.message.delete()
+        await ctx.send(files=[
+            discord.File('./assets/rockandstone.jpg')
+        ])
+        return
+
+    @commands.command()
     async def soy(self, ctx, *argv):
         """soyjacks the latest image message"""
         if len(argv) > 0:
