@@ -9,6 +9,7 @@ from util.now import now
 shitmoop = 811211114699292672
 learn2spell = 'https://www.youtube.com/watch?v=jfzsa0DDc0o'
 
+
 # load in images
 # overlay = image.open('assets/a.png')
 # overlay_l = image.open('assets/left.png')
@@ -16,10 +17,13 @@ learn2spell = 'https://www.youtube.com/watch?v=jfzsa0DDc0o'
 def get_overlays():
     out = {}
     for filename in glob.glob('assets/overlays/*.png'):
-        out[filename
-            .replace('assets/overlays/', '')
-            .replace('.png', '')] = image.open(filename)
+        out[filename.replace('assets/overlays/', '')  # linux
+            .replace('assets\\overlays\\', '')  # windows
+            .replace('assets/overlays\\', '')  # windows
+            #TODO do this properly
+            .replace('.png', '')] = image.open(filename).convert('RGBA')
     return out
+
 
 # TODO add orientation argument to push to left or right or top or bottom
 async def soy(msg, style=None):
@@ -28,13 +32,13 @@ async def soy(msg, style=None):
     print(f'$$ Bot pinged, searching for images {now()}')
     async for message in msg.channel.history(limit=20):
         if message.attachments:
-            atch = message.attachments[len(message.attachments)-1]
+            atch = message.attachments[len(message.attachments) - 1]
             # TODO iterate through files if the end isnt an image
             if atch.content_type.startswith("image/"):
-                print(
-                    f'$$ Image found at {atch.url} {now()}')
+                print(f'$$ Image found at {atch.url} {now()}')
 
-                backgr = image.open(requests.get(atch.url, stream=True).raw)
+                backgr = image.open(requests.get(
+                    atch.url, stream=True).raw).convert('RGBA')
 
                 if style == None:
                     style = 'soy'
@@ -52,9 +56,9 @@ async def soy(msg, style=None):
                 # if backgr image is wider than original overlay, and an _l and
                 # _r version of the current overlay exist, split the
                 # image and paste the halves separately
-                if backgr_ar > overlay_ar and im[style + '_l'] in im and im[style + '_r'] in im:
-                    backgr = _wide_overlay_split(
-                        backgr, style + '_l', style + '_r')
+                if backgr_ar > overlay_ar and style + '_l' in im and style + '_r' in im:
+                    backgr = _wide_overlay_split(backgr, style + '_l',
+                                                 style + '_r')
                 elif backgr_ar > overlay_ar:
                     backgr = _wide_overlay_centre(backgr, im[style])
                 #   place the single image on the background
@@ -87,18 +91,19 @@ def _wide_overlay_split(backgr, overlay_l, overlay_r):
     l_h_ratio = (backgr_h / float(overlay_l.size[1]))
     # get target width using current width and ratio
     l_w_target = int((float(overlay_l.size[0]) * float(l_h_ratio)))
-    t_overlay_l = overlay_l.resize(
-        (l_w_target, backgr_h), image.ANTIALIAS)  # resize
+    t_overlay_l = overlay_l.resize((l_w_target, backgr_h),
+                                   image.ANTIALIAS)  # resize
 
-    backgr.paste(
-        t_overlay_l, (0, backgr.size[1] - t_overlay_l.size[1]), t_overlay_l)
+    backgr.paste(t_overlay_l, (0, backgr.size[1] - t_overlay_l.size[1]),
+                 t_overlay_l)
 
     r_h_ratio = (backgr_h / float(overlay_r.size[1]))
     r_w_target = int((float(overlay_r.size[0]) * float(r_h_ratio)))
     t_overaly_r = overlay_r.resize((r_w_target, backgr_h), image.ANTIALIAS)
 
     backgr.paste(t_overaly_r, (backgr.size[0] - t_overaly_r.size[0],
-                 backgr.size[1] - t_overaly_r.size[1]), t_overaly_r)
+                               backgr.size[1] - t_overaly_r.size[1]),
+                 t_overaly_r)
     return backgr
 
 
@@ -118,8 +123,8 @@ def _wide_overlay_centre(backgr, overlay):
     #   overlay image on background on the right
     # else
     #   overlay image on background in the centre
-    backgr.paste(t_overlay, (int(
-        (0.5 * float(backgr.size[0]))-(0.5 * float(w_target))), 0), t_overlay)
+    backgr.paste(t_overlay, (int((0.5 * float(backgr.size[0])) -
+                                 (0.5 * float(w_target))), 0), t_overlay)
     return backgr
 
 
