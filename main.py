@@ -18,7 +18,7 @@ from util.now import now
 
 
 def main():
-    prefix = ','
+    prefix = '='
     bot = commands.Bot(command_prefix=prefix)
 
     shitmoop = 811211114699292672
