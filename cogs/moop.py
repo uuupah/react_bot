@@ -21,7 +21,7 @@ class Moop(commands.Cog):
     @commands.command()
     async def restart(self, ctx):
         """restarts moop"""
-        if (ctx.message.author.id == int(self.dad)):
+        # if (ctx.message.author.id == int(self.dad)):
             await ctx.send('okay, restarting')
             os.system("sh $HOME/moop.sh &")
             sys.exit()
