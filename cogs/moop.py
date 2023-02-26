@@ -22,9 +22,9 @@ class Moop(commands.Cog):
     async def restart(self, ctx):
         """restarts moop"""
         # if (ctx.message.author.id == int(self.dad)):
-            await ctx.send('okay, restarting')
-            os.system("sh $HOME/moop.sh &")
-            sys.exit()
+        await ctx.send('okay, restarting')
+        os.system("sh $HOME/moop.sh &")
+        sys.exit()
 
     @commands.command()
     async def horseplinko(self, ctx):
